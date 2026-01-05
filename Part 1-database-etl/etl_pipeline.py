@@ -6,12 +6,34 @@ import pandas as pd
 import mysql.connector
 from datetime import datetime
 import re
-# --- DATABASE CONFIGURATION ---
+
+# Load environment variables from the .env file
+from dotenv import load_dotenv
+import os
+from pathlib import Path
+
+# --- CHANGE START ---
+# Build the path to the .env file explicitly
+# This tells Python: "Start at this script, go up one folder, look for .env"
+env_path = Path(__file__).resolve().parent.parent / '.env'
+load_dotenv(dotenv_path=env_path)
+
+# Debug: Print where it is looking and if it found it
+print(f"Looking for .env at: {env_path}")
+print(f"File exists? {env_path.exists()}")
+# --- CHANGE END ---
+
+# Validate required DB env vars to avoid "using password: NO" errors
+required_vars = ['DB_USER', 'DB_PASSWORD', 'DB_HOST', 'DB_NAME']
+missing = [v for v in required_vars if not os.getenv(v)]
+if missing:
+    raise SystemExit(f"Missing environment variables: {', '.join(missing)}. Create a .env file in project root with DB_USER, DB_PASSWORD, DB_HOST, DB_NAME")
+
 DB_CONFIG = {
-    'user': 'root',
-    'password': 'Prady@241164',
-    'host': 'localhost',
-    'database': 'Fleximart'
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
+    'host': os.getenv('DB_HOST'),
+    'database': os.getenv('DB_NAME')
 }
 
 # --- GLOBAL METRICS STORE ---
@@ -43,9 +65,9 @@ def extract_transform_load():
     try:
         # --- 1. EXTRACT ---
         print("Extracting data...")
-        df_cust = pd.read_csv('customers_raw.csv')
-        df_prod = pd.read_csv('products_raw.csv')
-        df_sales = pd.read_csv('sales_raw.csv')
+        df_cust = pd.read_csv('/Users/shiv/Documents/python/GitHub/Data-Analytics_2025_BITSoM/Part 1-database-etl/customers_raw.csv')
+        df_prod = pd.read_csv('/Users/shiv/Documents/python/GitHub/Data-Analytics_2025_BITSoM/Part 1-database-etl/products_raw.csv')
+        df_sales = pd.read_csv('/Users/shiv/Documents/python/GitHub/Data-Analytics_2025_BITSoM/Part 1-database-etl/sales_raw.csv')
 
         # Initialize "Processed" counts
         metrics["customers"]["processed"] = len(df_cust)
